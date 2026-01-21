@@ -1,0 +1,127 @@
+import type { Address } from 'viem'
+import { createW3Layer, type W3LayerInstance } from '@rsksmart/w3layer'
+import { createLogger, type Logger } from '@rsksmart/sdk-base'
+import {
+  getContractAddresses,
+  createContractAddresses,
+  type ContractAddresses,
+} from './contracts/addresses'
+import {
+  getAvailableForBacking,
+  getTotalBacking,
+  getBackersIncentives,
+  getBuilders,
+  getBuilder,
+} from './backing'
+import type {
+  CollectiveConfig,
+  BackingModule,
+  AvailableForBacking,
+  TotalBacking,
+  BackersIncentives,
+  Builder,
+} from './types'
+
+/**
+ * Rootstock Collective SDK
+ *
+ * Main entry point for interacting with the Collective DAO protocol.
+ *
+ * @example
+ * ```ts
+ * import { CollectiveSDK } from '@rsksmart/collective'
+ *
+ * const sdk = new CollectiveSDK({ chainId: 30 })
+ *
+ * // Get available balance for backing
+ * const available = await sdk.backing.getAvailableForBacking('0x...')
+ *
+ * // Get list of builders
+ * const builders = await sdk.backing.getBuilders()
+ * ```
+ */
+export class CollectiveSDK {
+  private readonly w3: W3LayerInstance
+  private readonly addresses: ContractAddresses
+  private readonly logger: Logger
+
+  /**
+   * Backing module - functions related to backing builders
+   */
+  public readonly backing: BackingModule
+
+  constructor(config: CollectiveConfig) {
+    this.logger = createLogger({ prefix: '[Collective]' })
+    this.logger.debug('Initializing CollectiveSDK', { chainId: config.chainId })
+
+    this.w3 = createW3Layer({
+      chainId: config.chainId,
+      rpcUrl: config.rpcUrl,
+    })
+
+    this.addresses = config.contractAddresses
+      ? createContractAddresses(config.chainId, config.contractAddresses)
+      : getContractAddresses(config.chainId)
+
+    this.backing = this.createBackingModule()
+
+    this.logger.info('CollectiveSDK initialized', { chainId: config.chainId })
+  }
+
+  /**
+   * Create the backing module with bound methods
+   */
+  private createBackingModule(): BackingModule {
+    return {
+      getAvailableForBacking: (backerAddress: Address): Promise<AvailableForBacking> =>
+        getAvailableForBacking(this.w3, this.addresses, backerAddress),
+
+      getTotalBacking: (backerAddress: Address): Promise<TotalBacking> =>
+        getTotalBacking(this.w3, this.addresses, backerAddress),
+
+      getBackersIncentives: (): Promise<BackersIncentives> =>
+        getBackersIncentives(this.w3, this.addresses),
+
+      getBuilders: (): Promise<Builder[]> => getBuilders(this.w3, this.addresses),
+
+      getBuilder: (builderAddress: Address): Promise<Builder | null> =>
+        getBuilder(this.w3, this.addresses, builderAddress),
+    }
+  }
+
+  /**
+   * Get the current chain ID
+   */
+  get chainId(): number {
+    return this.w3.chainId
+  }
+
+  /**
+   * Get the contract addresses being used
+   */
+  get contractAddresses(): ContractAddresses {
+    return { ...this.addresses }
+  }
+
+  /**
+   * Get the underlying W3Layer instance for advanced usage
+   */
+  get w3layer(): W3LayerInstance {
+    return this.w3
+  }
+}
+
+/**
+ * Create a new CollectiveSDK instance
+ *
+ * @param config - SDK configuration
+ * @returns CollectiveSDK instance
+ *
+ * @example
+ * ```ts
+ * const sdk = createCollective({ chainId: 30 })
+ * ```
+ */
+export function createCollective(config: CollectiveConfig): CollectiveSDK {
+  return new CollectiveSDK(config)
+}
