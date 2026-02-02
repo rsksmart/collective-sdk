@@ -4,7 +4,14 @@ import type { TokenAmount, Percentage } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from './contracts/addresses'
 import type { BackedBuildersResult } from './backing/getBackedBuilders'
 import type { TokenBalances, UnclaimedRewards, VotingPower } from './holdings'
-import type { GovernorStats, ProposalsListResult, Proposal } from './proposals'
+import {
+  ProposalState,
+  VoteSupport,
+  type GovernorStats,
+  type ProposalsListResult,
+  type Proposal,
+  type VoteResult,
+} from './proposals'
 
 /**
  * Configuration for Collective SDK
@@ -141,4 +148,21 @@ export interface ProposalsModule {
   getProposal: (proposalId: string | bigint) => Promise<Proposal | null>
   /** Get full details including description and actions (requires event log search) */
   getProposalDetails: (proposalId: string | bigint, options?: { fromBlock?: bigint }) => Promise<Proposal | null>
+  /** Check if a user has already voted on a proposal */
+  hasVoted: (proposalId: string | bigint, voterAddress: `0x${string}`) => Promise<boolean>
+  /** Get the current state of a proposal */
+  getProposalState: (proposalId: string | bigint) => Promise<ProposalState>
+  /**
+   * Cast a vote on a proposal
+   * @param walletClient - Viem WalletClient (from wagmi, MetaMask, or private key)
+   * @param proposalId - The proposal ID
+   * @param support - VoteSupport.For, VoteSupport.Against, or VoteSupport.Abstain
+   * @param options - Optional: reason for the vote, skip validation
+   */
+  castVote: (
+    walletClient: import('viem').WalletClient,
+    proposalId: string | bigint,
+    support: VoteSupport,
+    options?: { reason?: string; skipValidation?: boolean }
+  ) => Promise<VoteResult>
 }

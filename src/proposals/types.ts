@@ -16,6 +16,39 @@ export enum ProposalState {
 }
 
 /**
+ * Vote support options matching Governor contract
+ * Against = 0, For = 1, Abstain = 2
+ */
+export enum VoteSupport {
+  Against = 0,
+  For = 1,
+  Abstain = 2,
+}
+
+/**
+ * Human-readable vote labels
+ */
+export const VoteSupportLabels: Record<VoteSupport, string> = {
+  [VoteSupport.Against]: 'Against',
+  [VoteSupport.For]: 'For',
+  [VoteSupport.Abstain]: 'Abstain',
+}
+
+/**
+ * Vote transaction result
+ */
+export interface VoteResult {
+  /** Transaction hash */
+  hash: `0x${string}`
+  /** Wait for transaction confirmation */
+  wait: (confirmations?: number) => Promise<{
+    transactionHash: `0x${string}`
+    blockNumber: bigint
+    status: 'success' | 'reverted'
+  }>
+}
+
+/**
  * Human-readable proposal state labels
  */
 export const ProposalStateLabels: Record<ProposalState, string> = {

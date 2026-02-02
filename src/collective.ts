@@ -1,4 +1,4 @@
-import type { Address } from 'viem'
+import type { Address, WalletClient } from 'viem'
 import { createW3Layer, type W3LayerInstance } from '@rsksmart/w3layer'
 import { createLogger, type Logger } from '@rsksmart/sdk-base'
 import {
@@ -28,9 +28,15 @@ import {
   getProposals,
   getProposal,
   getProposalDetails,
+  castVote,
+  hasVoted,
+  getProposalState,
+  VoteSupport,
   type GovernorStats,
   type ProposalsListResult,
   type Proposal,
+  type VoteResult,
+  type CastVoteOptions,
 } from './proposals'
 import type {
   CollectiveConfig,
@@ -157,6 +163,20 @@ export class CollectiveSDK {
 
       getProposalDetails: (proposalId: string | bigint, options?: { fromBlock?: bigint }): Promise<Proposal | null> =>
         getProposalDetails(this.w3, this.addresses, proposalId, options),
+
+      hasVoted: (proposalId: string | bigint, voterAddress: Address): Promise<boolean> =>
+        hasVoted(this.w3, this.addresses, proposalId, voterAddress),
+
+      getProposalState: (proposalId: string | bigint) =>
+        getProposalState(this.w3, this.addresses, proposalId),
+
+      castVote: (
+        walletClient: WalletClient,
+        proposalId: string | bigint,
+        support: VoteSupport,
+        options?: CastVoteOptions
+      ): Promise<VoteResult> =>
+        castVote(this.w3, this.addresses, walletClient, proposalId, support, options),
     }
   }
 

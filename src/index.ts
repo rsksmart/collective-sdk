@@ -28,6 +28,8 @@ export {
   ProposalState,
   ProposalStateLabels,
   ProposalCategory,
+  VoteSupport,
+  VoteSupportLabels,
   type GovernorStats,
   type ProposalVotes,
   type ProposalBasic,
@@ -35,6 +37,8 @@ export {
   type ProposalSummary,
   type ProposalsListResult,
   type ProposalAction,
+  type VoteResult,
+  type CastVoteOptions,
 } from './proposals'
 
 export {

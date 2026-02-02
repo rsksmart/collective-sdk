@@ -1,5 +1,5 @@
 /**
- * Partial Governor ABI for reading proposal data
+ * Partial Governor ABI for reading and writing proposal data
  */
 export const GovernorAbi = [
   // Events
@@ -18,6 +18,38 @@ export const GovernorAbi = [
     ],
     name: 'ProposalCreated',
     type: 'event',
+  },
+  // Write functions
+  {
+    inputs: [
+      { internalType: 'uint256', name: 'proposalId', type: 'uint256' },
+      { internalType: 'uint8', name: 'support', type: 'uint8' },
+    ],
+    name: 'castVote',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'uint256', name: 'proposalId', type: 'uint256' },
+      { internalType: 'uint8', name: 'support', type: 'uint8' },
+      { internalType: 'string', name: 'reason', type: 'string' },
+    ],
+    name: 'castVoteWithReason',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'uint256', name: 'proposalId', type: 'uint256' },
+      { internalType: 'address', name: 'account', type: 'address' },
+    ],
+    name: 'hasVoted',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   // Read functions
   {
