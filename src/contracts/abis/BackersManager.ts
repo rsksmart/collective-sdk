@@ -1,5 +1,5 @@
 /**
- * BackersManager ABI (partial - only functions needed for backing)
+ * BackersManager ABI (functions needed for backing and claiming rewards)
  */
 export const BackersManagerAbi = [
   {
@@ -20,6 +20,37 @@ export const BackersManagerAbi = [
       },
     ],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'claimBackerRewards',
+    inputs: [
+      {
+        name: 'gauges_',
+        type: 'address[]',
+        internalType: 'contract GaugeRootstockCollective[]',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'claimBackerRewards',
+    inputs: [
+      {
+        name: 'rewardToken_',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'gauges_',
+        type: 'address[]',
+        internalType: 'contract GaugeRootstockCollective[]',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',

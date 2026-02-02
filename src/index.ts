@@ -22,7 +22,14 @@ export type {
 
 export type { BackedBuilder, BackedBuildersResult } from './backing/getBackedBuilders'
 
-export type { TokenBalances, UnclaimedRewards, VotingPower } from './holdings'
+export type {
+  TokenBalances,
+  UnclaimedRewards,
+  VotingPower,
+  ClaimableToken,
+  ClaimRewardsResult,
+  ClaimableRewardsInfo,
+} from './holdings'
 
 export {
   ProposalState,

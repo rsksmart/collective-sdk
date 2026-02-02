@@ -19,9 +19,14 @@ import {
   getBalances,
   getUnclaimedRewards,
   getVotingPower,
+  claimRewards,
+  getClaimableRewardsInfo,
   type TokenBalances,
   type UnclaimedRewards,
   type VotingPower,
+  type ClaimableToken,
+  type ClaimRewardsResult,
+  type ClaimableRewardsInfo,
 } from './holdings'
 import {
   getGovernorStats,
@@ -144,6 +149,16 @@ export class CollectiveSDK {
 
       getVotingPower: (userAddress: Address): Promise<VotingPower> =>
         getVotingPower(this.w3, this.addresses, userAddress),
+
+      getClaimableRewardsInfo: (backerAddress: Address): Promise<ClaimableRewardsInfo> =>
+        getClaimableRewardsInfo(this.w3, this.addresses, backerAddress),
+
+      claimRewards: (
+        walletClient: WalletClient,
+        backerAddress: Address,
+        token?: ClaimableToken
+      ): Promise<ClaimRewardsResult> =>
+        claimRewards(this.w3, this.addresses, walletClient, backerAddress, token),
     }
   }
 

@@ -124,6 +124,28 @@ export interface BackingModule {
   getBackedBuilders: (backerAddress: Address) => Promise<BackedBuildersResult>
 }
 
+/** Token type for claiming rewards */
+export type ClaimableToken = 'rif' | 'rbtc' | 'usdrif' | 'all'
+
+/** Result of claim rewards operation */
+export interface ClaimRewardsResult {
+  hash: `0x${string}`
+  wait: (confirmations?: number) => Promise<{
+    transactionHash: `0x${string}`
+    blockNumber: bigint
+    status: 'success' | 'reverted'
+  }>
+}
+
+/** Info about claimable rewards */
+export interface ClaimableRewardsInfo {
+  rifGauges: Address[]
+  rbtcGauges: Address[]
+  usdrifGauges: Address[]
+  allGauges: Address[]
+  hasRewards: boolean
+}
+
 /**
  * Holdings module interface
  */
@@ -134,6 +156,20 @@ export interface HoldingsModule {
   getUnclaimedRewards: (backerAddress: Address) => Promise<UnclaimedRewards>
   /** Get voting power (stRIF balance) for a user */
   getVotingPower: (userAddress: Address) => Promise<VotingPower>
+  /** Get info about which gauges have claimable rewards */
+  getClaimableRewardsInfo: (backerAddress: Address) => Promise<ClaimableRewardsInfo>
+
+  /**
+   * Claim backer rewards
+   * @param walletClient - Viem WalletClient
+   * @param backerAddress - Address of the backer
+   * @param token - Which token to claim: 'rif', 'rbtc', 'usdrif', or 'all' (default)
+   */
+  claimRewards: (
+    walletClient: import('viem').WalletClient,
+    backerAddress: Address,
+    token?: ClaimableToken
+  ) => Promise<ClaimRewardsResult>
 }
 
 /**
