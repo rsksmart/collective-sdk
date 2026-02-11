@@ -21,13 +21,23 @@ import {
   getVotingPower,
   claimRewards,
   getClaimableRewardsInfo,
+  getDetailedRewardsList,
   type TokenBalances,
   type UnclaimedRewards,
   type VotingPower,
   type ClaimableToken,
   type ClaimRewardsResult,
   type ClaimableRewardsInfo,
+  type DetailedRewardsList,
 } from './holdings'
+import {
+  getStakingInfo,
+  approveRIF,
+  stakeRIF,
+  unstakeRIF,
+  type StakingInfo,
+  type StakeResult,
+} from './staking'
 import {
   getGovernorStats,
   getProposals,
@@ -66,6 +76,7 @@ import type {
   BackingModule,
   HoldingsModule,
   ProposalsModule,
+  StakingModule,
   AvailableForBacking,
   TotalBacking,
   BackersIncentives,
@@ -110,6 +121,11 @@ export class CollectiveSDK {
    */
   public readonly proposals: ProposalsModule
 
+  /**
+   * Staking module - functions related to staking/unstaking RIF tokens
+   */
+  public readonly staking: StakingModule
+
   constructor(config: CollectiveConfig) {
     this.logger = createLogger({ prefix: '[Collective]' })
     this.logger.debug('Initializing CollectiveSDK', { chainId: config.chainId })
@@ -126,6 +142,7 @@ export class CollectiveSDK {
     this.backing = this.createBackingModule()
     this.holdings = this.createHoldingsModule()
     this.proposals = this.createProposalsModule()
+    this.staking = this.createStakingModule()
 
     this.logger.info('CollectiveSDK initialized', { chainId: config.chainId })
   }
@@ -171,12 +188,42 @@ export class CollectiveSDK {
       getClaimableRewardsInfo: (backerAddress: Address): Promise<ClaimableRewardsInfo> =>
         getClaimableRewardsInfo(this.w3, this.addresses, backerAddress),
 
+      getDetailedRewardsList: (backerAddress: Address): Promise<DetailedRewardsList> =>
+        getDetailedRewardsList(this.w3, this.addresses, backerAddress),
+
       claimRewards: (
         walletClient: WalletClient,
         backerAddress: Address,
         token?: ClaimableToken
       ): Promise<ClaimRewardsResult> =>
         claimRewards(this.w3, this.addresses, walletClient, backerAddress, token),
+    }
+  }
+
+  /**
+   * Create the staking module with bound methods
+   */
+  private createStakingModule(): StakingModule {
+    return {
+      getStakingInfo: (userAddress: Address): Promise<StakingInfo> =>
+        getStakingInfo(this.w3, this.addresses, userAddress),
+
+      approveRIF: (walletClient: WalletClient, amount: bigint) =>
+        approveRIF(this.w3, this.addresses, walletClient, amount),
+
+      stakeRIF: (
+        walletClient: WalletClient,
+        amount: bigint,
+        delegatee: Address
+      ): Promise<StakeResult> =>
+        stakeRIF(this.w3, this.addresses, walletClient, amount, delegatee),
+
+      unstakeRIF: (
+        walletClient: WalletClient,
+        amount: bigint,
+        recipient: Address
+      ): Promise<StakeResult> =>
+        unstakeRIF(this.w3, this.addresses, walletClient, amount, recipient),
     }
   }
 

@@ -1,4 +1,5 @@
 export { StRIFTokenAbi } from './StRIFToken'
+export { RIFTokenAbi } from './RIFToken'
 export { BackersManagerAbi } from './BackersManager'
 export { BuilderRegistryAbi } from './BuilderRegistry'
 export { GaugeAbi } from './Gauge'

@@ -8,3 +8,10 @@ export {
   type ClaimRewardsResult,
   type ClaimableRewardsInfo,
 } from './claimRewards'
+export {
+  getDetailedRewardsList,
+  type DetailedRewardsList,
+  type GaugeRewards,
+  type RewardsSummary,
+  type TokenRewardAmount,
+} from './getDetailedRewardsList'

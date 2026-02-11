@@ -3,7 +3,13 @@ import type { RootstockChainId } from '@rsksmart/w3layer'
 import type { TokenAmount, Percentage } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from './contracts/addresses'
 import type { BackedBuildersResult } from './backing/getBackedBuilders'
-import type { TokenBalances, UnclaimedRewards, VotingPower } from './holdings'
+import type {
+  TokenBalances,
+  UnclaimedRewards,
+  VotingPower,
+  DetailedRewardsList,
+} from './holdings'
+import type { StakingInfo, StakeResult } from './staking'
 import {
   ProposalState,
   VoteSupport,
@@ -159,12 +165,19 @@ export interface ClaimableRewardsInfo {
 export interface HoldingsModule {
   /** Get token balances (RIF, stRIF, USDRIF, RBTC) for a user */
   getBalances: (userAddress: Address) => Promise<TokenBalances>
-  /** Get unclaimed rewards for a backer */
+  /** Get unclaimed rewards for a backer (aggregated totals) */
   getUnclaimedRewards: (backerAddress: Address) => Promise<UnclaimedRewards>
   /** Get voting power (stRIF balance) for a user */
   getVotingPower: (userAddress: Address) => Promise<VotingPower>
   /** Get info about which gauges have claimable rewards */
   getClaimableRewardsInfo: (backerAddress: Address) => Promise<ClaimableRewardsInfo>
+
+  /**
+   * Get detailed rewards list with per-gauge and per-token amounts
+   * @param backerAddress - Address of the backer
+   * @returns Detailed breakdown of rewards per gauge and token
+   */
+  getDetailedRewardsList: (backerAddress: Address) => Promise<DetailedRewardsList>
 
   /**
    * Claim backer rewards
@@ -177,6 +190,55 @@ export interface HoldingsModule {
     backerAddress: Address,
     token?: ClaimableToken
   ) => Promise<ClaimRewardsResult>
+}
+
+/**
+ * Staking module interface
+ */
+export interface StakingModule {
+  /**
+   * Get staking information for a user
+   * @param userAddress - Address of the user
+   * @returns Staking info including RIF balance, stRIF balance, and allowance
+   */
+  getStakingInfo: (userAddress: Address) => Promise<StakingInfo>
+
+  /**
+   * Approve RIF tokens for staking
+   * @param walletClient - Viem WalletClient
+   * @param amount - Amount of RIF to approve (in wei)
+   */
+  approveRIF: (
+    walletClient: import('viem').WalletClient,
+    amount: bigint
+  ) => Promise<WriteContractResult>
+
+  /**
+   * Stake RIF tokens to receive stRIF
+   *
+   * IMPORTANT: You must first approve the stRIF contract to spend your RIF tokens.
+   *
+   * @param walletClient - Viem WalletClient
+   * @param amount - Amount of RIF to stake (in wei)
+   * @param delegatee - Address to delegate voting power to (usually your own address)
+   */
+  stakeRIF: (
+    walletClient: import('viem').WalletClient,
+    amount: bigint,
+    delegatee: Address
+  ) => Promise<StakeResult>
+
+  /**
+   * Unstake stRIF to receive RIF tokens back
+   * @param walletClient - Viem WalletClient
+   * @param amount - Amount of stRIF to unstake (in wei)
+   * @param recipient - Address to receive the RIF tokens (usually your own address)
+   */
+  unstakeRIF: (
+    walletClient: import('viem').WalletClient,
+    amount: bigint,
+    recipient: Address
+  ) => Promise<StakeResult>
 }
 
 /**

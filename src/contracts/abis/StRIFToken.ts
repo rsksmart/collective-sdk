@@ -1,5 +1,5 @@
 /**
- * StRIF Token ABI (partial - only functions needed for backing)
+ * StRIF Token ABI (partial - functions needed for staking and backing)
  */
 export const StRIFTokenAbi = [
   {
@@ -78,5 +78,48 @@ export const StRIFTokenAbi = [
       },
     ],
     stateMutability: 'view',
+  },
+  // Staking functions
+  {
+    type: 'function',
+    name: 'depositAndDelegate',
+    inputs: [
+      {
+        name: 'to',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'value',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'withdrawTo',
+    inputs: [
+      {
+        name: 'account',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'value',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    stateMutability: 'nonpayable',
   },
 ] as const

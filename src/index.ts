@@ -18,6 +18,7 @@ export type {
   BackingModule,
   HoldingsModule,
   ProposalsModule,
+  StakingModule,
 } from './types'
 
 export type { BackedBuilder, BackedBuildersResult } from './backing/getBackedBuilders'
@@ -29,7 +30,16 @@ export type {
   ClaimableToken,
   ClaimRewardsResult,
   ClaimableRewardsInfo,
+  DetailedRewardsList,
+  GaugeRewards,
+  RewardsSummary,
+  TokenRewardAmount,
 } from './holdings'
+
+export type {
+  StakingInfo,
+  StakeResult,
+} from './staking'
 
 export {
   ProposalState,
