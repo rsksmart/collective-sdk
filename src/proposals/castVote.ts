@@ -1,5 +1,6 @@
 import type { Address, WalletClient } from 'viem'
 import type { W3LayerInstance } from '@rsksmart/w3layer'
+import { validateAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { GovernorAbi } from '../contracts/abis'
 import { ProposalState, VoteSupport, type VoteResult } from './types'
@@ -12,6 +13,7 @@ import { ProposalState, VoteSupport, type VoteResult } from './types'
  * @param proposalId - The proposal ID
  * @param voterAddress - The voter's address
  * @returns true if the user has already voted
+ * @throws Error if voter address is invalid
  */
 export async function hasVoted(
   w3: W3LayerInstance,
@@ -19,6 +21,7 @@ export async function hasVoted(
   proposalId: string | bigint,
   voterAddress: Address
 ): Promise<boolean> {
+  validateAddress(voterAddress)
   const id = typeof proposalId === 'string' ? BigInt(proposalId) : proposalId
 
   return w3.readContract<boolean>({

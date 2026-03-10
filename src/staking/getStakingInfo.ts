@@ -1,6 +1,6 @@
 import type { Address } from 'viem'
 import type { W3LayerInstance } from '@rsksmart/w3layer'
-import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount } from '@rsksmart/sdk-base'
+import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount, validateAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { StRIFTokenAbi, RIFTokenAbi } from '../contracts/abis'
 
@@ -25,12 +25,15 @@ export interface StakingInfo {
  * @param addresses - Contract addresses
  * @param userAddress - Address of the user
  * @returns Staking information including balances and allowance
+ * @throws Error if user address is invalid
  */
 export async function getStakingInfo(
   w3: W3LayerInstance,
   addresses: ContractAddresses,
   userAddress: Address
 ): Promise<StakingInfo> {
+  validateAddress(userAddress)
+
   const results = await w3.multicall({
     contracts: [
       {

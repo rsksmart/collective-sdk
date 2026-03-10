@@ -13,6 +13,7 @@ export const mockAddresses: ContractAddresses = {
   backersManager: '0x4444444444444444444444444444444444444444',
   builderRegistry: '0x5555555555555555555555555555555555555555',
   governor: '0x6666666666666666666666666666666666666666',
+  treasury: '0x7777777777777777777777777777777777777777',
 }
 
 export const mockUserAddress = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as const

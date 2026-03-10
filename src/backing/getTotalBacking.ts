@@ -1,6 +1,6 @@
 import type { Address } from 'viem'
 import type { W3LayerInstance } from '@rsksmart/w3layer'
-import { toTokenAmount, TOKEN_DECIMALS } from '@rsksmart/sdk-base'
+import { toTokenAmount, TOKEN_DECIMALS, validateAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { BackersManagerAbi, BuilderRegistryAbi, GaugeAbi } from '../contracts/abis'
 import type { TotalBacking } from '../types'
@@ -14,12 +14,15 @@ const STRIF_SYMBOL = 'stRIF'
  * @param addresses - Contract addresses
  * @param backerAddress - Address of the backer
  * @returns Total backing information
+ * @throws Error if backer address is invalid
  */
 export async function getTotalBacking(
   w3: W3LayerInstance,
   addresses: ContractAddresses,
   backerAddress: Address
 ): Promise<TotalBacking> {
+  validateAddress(backerAddress)
+
   const totalAllocation = await w3.readContract<bigint>({
     address: addresses.backersManager,
     abi: BackersManagerAbi,

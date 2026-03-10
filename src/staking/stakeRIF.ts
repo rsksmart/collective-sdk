@@ -1,5 +1,6 @@
 import type { Address, WalletClient } from 'viem'
 import type { W3LayerInstance, WriteContractResult } from '@rsksmart/w3layer'
+import { validateAddress, isZeroAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { StRIFTokenAbi } from '../contracts/abis'
 
@@ -52,6 +53,12 @@ export async function stakeRIF(
 ): Promise<StakeResult> {
   if (amount <= 0n) {
     throw new Error('Amount must be greater than 0')
+  }
+
+  // Validate delegatee address
+  validateAddress(delegatee)
+  if (isZeroAddress(delegatee)) {
+    throw new Error('Delegatee cannot be the zero address - voting power would be permanently lost')
   }
 
   return w3.writeContract(walletClient, {

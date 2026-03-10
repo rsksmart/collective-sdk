@@ -1,5 +1,6 @@
 import type { Address, WalletClient } from 'viem'
 import type { W3LayerInstance } from '@rsksmart/w3layer'
+import { validateAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { BuilderRegistryAbi, BackersManagerAbi, GaugeAbi } from '../contracts/abis'
 
@@ -61,12 +62,15 @@ function getTokenAddress(addresses: ContractAddresses, token: ClaimableToken): A
  * @param addresses - Contract addresses
  * @param backerAddress - Address of the backer
  * @returns Info about claimable rewards per gauge
+ * @throws Error if backer address is invalid
  */
 export async function getClaimableRewardsInfo(
   w3: W3LayerInstance,
   addresses: ContractAddresses,
   backerAddress: Address
 ): Promise<ClaimableRewardsInfo> {
+  validateAddress(backerAddress)
+
   const gaugesLength = await w3.readContract<bigint>({
     address: addresses.builderRegistry,
     abi: BuilderRegistryAbi,

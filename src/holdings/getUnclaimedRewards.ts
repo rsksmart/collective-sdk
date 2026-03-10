@@ -1,6 +1,6 @@
 import type { Address } from 'viem'
 import type { W3LayerInstance } from '@rsksmart/w3layer'
-import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount } from '@rsksmart/sdk-base'
+import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount, validateAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { BuilderRegistryAbi, GaugeAbi } from '../contracts/abis'
 
@@ -28,12 +28,15 @@ export interface UnclaimedRewards {
  * @param addresses - Contract addresses
  * @param backerAddress - Address of the backer
  * @returns Unclaimed rewards
+ * @throws Error if backer address is invalid
  */
 export async function getUnclaimedRewards(
   w3: W3LayerInstance,
   addresses: ContractAddresses,
   backerAddress: Address
 ): Promise<UnclaimedRewards> {
+  validateAddress(backerAddress)
+
   const gaugesLength = await w3.readContract<bigint>({
     address: addresses.builderRegistry,
     abi: BuilderRegistryAbi,

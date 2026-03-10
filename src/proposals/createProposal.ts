@@ -1,6 +1,6 @@
 import { type Address, type WalletClient, encodeFunctionData, keccak256, toHex, zeroAddress } from 'viem'
 import type { W3LayerInstance, WriteContractResult } from '@rsksmart/w3layer'
-import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount } from '@rsksmart/sdk-base'
+import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount, validateAddress, isZeroAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import {
   GovernorAbi,
@@ -138,23 +138,85 @@ export function encodeGovernorRelay(
 }
 
 /**
+ * Maximum allowed transfer amount (1 trillion tokens - sanity check)
+ */
+const MAX_TRANSFER_AMOUNT = 10n ** 30n
+
+/**
  * Parse amount string to bigint based on token decimals
+ *
+ * @throws Error if amount is invalid (empty, negative, non-numeric, or exceeds max)
  */
 function parseAmount(amount: string, token: TreasuryTransferToken): bigint {
+  if (!amount || typeof amount !== 'string') {
+    throw new Error('Amount is required and must be a string')
+  }
+
+  const trimmed = amount.trim()
+
+  if (trimmed === '') {
+    throw new Error('Amount cannot be empty')
+  }
+
+  if (trimmed.startsWith('-')) {
+    throw new Error('Amount cannot be negative')
+  }
+
+  // Check for scientific notation
+  if (/[eE]/.test(trimmed)) {
+    throw new Error('Scientific notation is not supported. Please use decimal format (e.g., "1000000" instead of "1e6")')
+  }
+
+  // Validate format: only digits and at most one decimal point
+  if (!/^\d+\.?\d*$/.test(trimmed)) {
+    throw new Error(`Invalid amount format: "${amount}". Expected a positive decimal number (e.g., "100.5")`)
+  }
+
   const decimals = token === 'rbtc' ? 18 : TOKEN_DECIMALS[token.toUpperCase() as keyof typeof TOKEN_DECIMALS] ?? 18
-  const [integer, decimal = ''] = amount.split('.')
+  const [integer, decimal = ''] = trimmed.split('.')
+
+  // Validate integer part is not just empty (e.g., ".5" should be "0.5")
+  if (integer === '') {
+    throw new Error('Invalid amount format: integer part is required (use "0.5" instead of ".5")')
+  }
+
   const paddedDecimal = decimal.padEnd(decimals, '0').slice(0, decimals)
-  return BigInt(integer + paddedDecimal)
+
+  let result: bigint
+  try {
+    result = BigInt(integer + paddedDecimal)
+  } catch {
+    throw new Error(`Invalid amount: "${amount}" could not be parsed as a number`)
+  }
+
+  if (result <= 0n) {
+    throw new Error('Amount must be greater than zero')
+  }
+
+  if (result > MAX_TRANSFER_AMOUNT) {
+    throw new Error(`Amount exceeds maximum allowed value`)
+  }
+
+  return result
 }
 
 /**
  * Build a treasury transfer proposal
+ *
+ * @throws Error if recipient is invalid or zero address
  */
 export function buildTreasuryTransferProposal(
   addresses: ContractAddresses,
   options: TreasuryTransferOptions
 ): Proposal {
   const { token, recipient, amount, description } = options
+
+  // Validate recipient address
+  validateAddress(recipient)
+  if (isZeroAddress(recipient)) {
+    throw new Error('Treasury transfer recipient cannot be the zero address - funds would be permanently lost')
+  }
+
   const amountWei = parseAmount(amount, token)
 
   let calldata: `0x${string}`
@@ -184,12 +246,20 @@ export function buildTreasuryTransferProposal(
 
 /**
  * Build a builder whitelist proposal
+ *
+ * @throws Error if builder address is invalid or zero address
  */
 export function buildBuilderWhitelistProposal(
   addresses: ContractAddresses,
   options: BuilderWhitelistOptions
 ): Proposal {
   const { builderAddress, description } = options
+
+  // Validate builder address
+  validateAddress(builderAddress)
+  if (isZeroAddress(builderAddress)) {
+    throw new Error('Builder address cannot be the zero address')
+  }
 
   const innerCalldata = encodeFunctionData({
     abi: BuilderRegistryAbi,
@@ -209,12 +279,20 @@ export function buildBuilderWhitelistProposal(
 
 /**
  * Build a builder removal proposal
+ *
+ * @throws Error if builder address is invalid or zero address
  */
 export function buildBuilderRemovalProposal(
   addresses: ContractAddresses,
   options: BuilderRemovalOptions
 ): Proposal {
   const { builderAddress, description } = options
+
+  // Validate builder address
+  validateAddress(builderAddress)
+  if (isZeroAddress(builderAddress)) {
+    throw new Error('Builder address cannot be the zero address')
+  }
 
   const innerCalldata = encodeFunctionData({
     abi: BuilderRegistryAbi,
@@ -251,12 +329,15 @@ export function buildCustomProposal(options: CustomProposalOptions): Proposal {
  * @param addresses - Contract addresses
  * @param userAddress - User's address
  * @returns Whether the user can create proposals and their voting power
+ * @throws Error if user address is invalid
  */
 export async function canCreateProposal(
   w3: W3LayerInstance,
   addresses: ContractAddresses,
   userAddress: Address
 ): Promise<CanCreateProposalResult> {
+  validateAddress(userAddress)
+
   const [votingPower, threshold] = await Promise.all([
     w3.readContract<bigint>({
       address: addresses.stRIF,
@@ -280,12 +361,16 @@ export async function canCreateProposal(
 
 /**
  * Check if a builder is already whitelisted
+ *
+ * @throws Error if builder address is invalid
  */
 export async function isBuilderWhitelisted(
   w3: W3LayerInstance,
   addresses: ContractAddresses,
   builderAddress: Address
 ): Promise<boolean> {
+  validateAddress(builderAddress)
+
   const gauge = await w3.readContract<Address>({
     address: addresses.builderRegistry,
     abi: BuilderRegistryAbi,

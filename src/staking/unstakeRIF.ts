@@ -1,5 +1,6 @@
 import type { Address, WalletClient } from 'viem'
 import type { W3LayerInstance } from '@rsksmart/w3layer'
+import { validateAddress, isZeroAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { StRIFTokenAbi } from '../contracts/abis'
 import type { StakeResult } from './stakeRIF'
@@ -35,6 +36,12 @@ export async function unstakeRIF(
 ): Promise<StakeResult> {
   if (amount <= 0n) {
     throw new Error('Amount must be greater than 0')
+  }
+
+  // Validate recipient address
+  validateAddress(recipient)
+  if (isZeroAddress(recipient)) {
+    throw new Error('Recipient cannot be the zero address - RIF tokens would be permanently lost')
   }
 
   return w3.writeContract(walletClient, {

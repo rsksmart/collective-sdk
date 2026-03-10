@@ -1,6 +1,6 @@
 import type { Address } from 'viem'
 import type { W3LayerInstance } from '@rsksmart/w3layer'
-import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount } from '@rsksmart/sdk-base'
+import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount, validateAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { ERC20Abi } from '../contracts/abis'
 
@@ -25,12 +25,15 @@ export interface TokenBalances {
  * @param addresses - Contract addresses
  * @param userAddress - Address to check balances for
  * @returns Token balances
+ * @throws Error if user address is invalid
  */
 export async function getBalances(
   w3: W3LayerInstance,
   addresses: ContractAddresses,
   userAddress: Address
 ): Promise<TokenBalances> {
+  validateAddress(userAddress)
+
   const [tokenResults, rbtcBalance] = await Promise.all([
     w3.multicall({
       contracts: [

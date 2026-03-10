@@ -1,6 +1,6 @@
 import type { Address } from 'viem'
 import type { W3LayerInstance } from '@rsksmart/w3layer'
-import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount } from '@rsksmart/sdk-base'
+import { toTokenAmount, TOKEN_DECIMALS, type TokenAmount, validateAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { BuilderRegistryAbi, GaugeAbi } from '../contracts/abis'
 
@@ -35,12 +35,15 @@ export interface BackedBuildersResult {
  * @param addresses - Contract addresses
  * @param backerAddress - Address of the backer
  * @returns List of backed builders with allocations
+ * @throws Error if backer address is invalid
  */
 export async function getBackedBuilders(
   w3: W3LayerInstance,
   addresses: ContractAddresses,
   backerAddress: Address
 ): Promise<BackedBuildersResult> {
+  validateAddress(backerAddress)
+
   const gaugesLength = await w3.readContract<bigint>({
     address: addresses.builderRegistry,
     abi: BuilderRegistryAbi,

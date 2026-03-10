@@ -37,6 +37,54 @@ interface BlockscoutResponse {
 }
 
 /**
+ * Validate that a value is a valid Blockscout log entry
+ */
+function isValidBlockscoutLog(log: unknown): log is BlockscoutLog {
+  if (!log || typeof log !== 'object') return false
+  const l = log as Record<string, unknown>
+  return (
+    typeof l.address === 'string' &&
+    typeof l.blockNumber === 'string' &&
+    typeof l.data === 'string' &&
+    Array.isArray(l.topics) &&
+    l.topics.every((t) => typeof t === 'string')
+  )
+}
+
+/**
+ * Validate Blockscout API response structure
+ */
+function validateBlockscoutResponse(data: unknown): BlockscoutResponse {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Invalid Blockscout response: expected object')
+  }
+
+  const response = data as Record<string, unknown>
+
+  if (typeof response.status !== 'string') {
+    throw new Error('Invalid Blockscout response: missing status field')
+  }
+
+  if (response.status === '1' && response.result !== undefined) {
+    if (!Array.isArray(response.result)) {
+      throw new Error('Invalid Blockscout response: result should be an array')
+    }
+
+    for (const log of response.result) {
+      if (!isValidBlockscoutLog(log)) {
+        throw new Error('Invalid Blockscout response: malformed log entry')
+      }
+    }
+  }
+
+  return {
+    status: response.status,
+    message: typeof response.message === 'string' ? response.message : '',
+    result: Array.isArray(response.result) ? (response.result as BlockscoutLog[]) : [],
+  }
+}
+
+/**
  * Fetch proposal event from Blockscout API
  */
 async function fetchProposalFromBlockscout(
@@ -63,7 +111,8 @@ async function fetchProposalFromBlockscout(
     throw new Error(`Blockscout API error: ${response.status}`)
   }
 
-  const data: BlockscoutResponse = await response.json()
+  const rawData = await response.json()
+  const data = validateBlockscoutResponse(rawData)
 
   if (data.status !== '1' || !data.result || data.result.length === 0) {
     return null
@@ -157,8 +206,8 @@ export async function getProposalDetails(
       }
     }
   } catch (error) {
-    // TODO: decide whether it is necessary to throw error (if so then also perhaps the function name `tryDecode` is misleading).
-    console.warn('Could not fetch ProposalCreated event from Blockscout:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.warn(`Could not fetch ProposalCreated event from Blockscout: ${errorMessage}`)
   }
   return proposal
 }

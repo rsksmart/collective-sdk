@@ -126,10 +126,10 @@ export interface ProposalBasic {
   deadline: bigint
   /** Votes data */
   votes: ProposalVotes
-  /** Quorum required at snapshot */
-  quorum: TokenAmount
-  /** Whether quorum has been reached */
-  quorumReached: boolean
+  /** Quorum required at snapshot (null if could not be fetched) */
+  quorum: TokenAmount | null
+  /** Whether quorum has been reached (null if quorum could not be determined) */
+  quorumReached: boolean | null
 }
 
 /**

@@ -106,7 +106,9 @@ export async function getProposal(
   const needsQueuing =
     results[7]?.status === 'success' ? (results[7].result as boolean) : false
 
-  let quorum = 0n
+  let quorum: bigint | null = null
+  let quorumReached: boolean | null = null
+
   if (snapshotBlock > 0n) {
     try {
       quorum = await w3.readContract<bigint>({
@@ -115,13 +117,13 @@ export async function getProposal(
         functionName: 'quorum',
         args: [snapshotBlock],
       })
+      quorumReached = forVotes >= quorum
     } catch {
-      // Quorum might not be available if block is too recent
+      // Quorum could not be fetched - leave as null to indicate unknown state
     }
   }
 
   const totalVotes = forVotes + againstVotes + abstainVotes
-  const quorumReached = forVotes >= quorum
 
   return {
     proposalId: id.toString(),
@@ -136,7 +138,7 @@ export async function getProposal(
       abstainVotes: toTokenAmount(abstainVotes, TOKEN_DECIMALS.stRIF, 'stRIF'),
       totalVotes: toTokenAmount(totalVotes, TOKEN_DECIMALS.stRIF, 'stRIF'),
     },
-    quorum: toTokenAmount(quorum, TOKEN_DECIMALS.stRIF, 'stRIF'),
+    quorum: quorum !== null ? toTokenAmount(quorum, TOKEN_DECIMALS.stRIF, 'stRIF') : null,
     quorumReached,
     targets,
     values,

@@ -1,6 +1,6 @@
 import type { Address } from 'viem'
 import type { W3LayerInstance } from '@rsksmart/w3layer'
-import { toTokenAmount, TOKEN_DECIMALS } from '@rsksmart/sdk-base'
+import { toTokenAmount, TOKEN_DECIMALS, validateAddress } from '@rsksmart/sdk-base'
 import type { ContractAddresses } from '../contracts/addresses'
 import { StRIFTokenAbi, BackersManagerAbi } from '../contracts/abis'
 import type { AvailableForBacking } from '../types'
@@ -14,12 +14,15 @@ const STRIF_SYMBOL = 'stRIF'
  * @param addresses - Contract addresses
  * @param backerAddress - Address of the backer
  * @returns Available backing information
+ * @throws Error if backer address is invalid
  */
 export async function getAvailableForBacking(
   w3: W3LayerInstance,
   addresses: ContractAddresses,
   backerAddress: Address
 ): Promise<AvailableForBacking> {
+  validateAddress(backerAddress)
+
   const results = await w3.multicall({
     contracts: [
       {
