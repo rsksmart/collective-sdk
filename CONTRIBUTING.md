@@ -35,7 +35,7 @@ Since this is a security-sensitive project, we encourage everyone to be proactiv
 - **Comment** when leaving feedback without explicit approval or rejection. This is useful for design and implementation discussions.
 - **Approve** when changes look good from a correctness, security, design and implementation standpoint.
 
-All unit and integration tests pass without loss of coverage (e.g can't remove tests without writing equivalent or better ones).
+All unit and integration tests pass without loss of coverage (e.g., can't remove tests without writing equivalent or better ones).
 
 All code paths on new code must be unit tested, including sensible edge cases and expected errors. Exceptions to this rule must be justified (i.e. highly similar paths already tested) in written form in the PR description.
 
