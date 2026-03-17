@@ -1,6 +1,6 @@
 # Reporting Security Issues
 
-The Rootstock team and community take security bugs in rootstock seriously. Beside this project is out of our Bug Bounty Program scope, we appreciate your efforts to responsibly disclose your findings, and will make every effort to acknowledge your contributions.
+The Rootstock team and community take security bugs in rootstock seriously. Since this project is out of scope for our Bug Bounty Program, we appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
 
 ## Responsible Disclosure
 
