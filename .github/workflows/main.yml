@@ -25,9 +25,9 @@ jobs:
         with:
           files: "package.json, README.md"
           
-      - name: File exists
+      - name: Fail if required files missing
         if: steps.check_files.outputs.files_exists != 'true'
-        # Only runs if all of the files exists
+        # Fail if required files are missing
         run: exit 1
 
       - name: Get package.json package name and match with repository name
