@@ -43,8 +43,8 @@
   "author": "Sebastian Guaqueta",
   "license": "MIT",
   "dependencies": {
-    "@rsksmart/w3layer": "^0.1.1",
-    "@rsksmart/sdk-base": "^0.1.1",
+    "@rsksmart/w3layer": "^0.2.0",
+    "@rsksmart/sdk-base": "^0.2.0",
     "viem": "^2.21.0"
   },
   "devDependencies": {
