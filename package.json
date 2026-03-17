@@ -2,7 +2,7 @@
   "name": "@rsksmart/collective-sdk",
   "version": "0.2.1",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org"
   },
   "description": "Rootstock Collective DAO SDK - Interact with the Collective DAO protocol",
   "repository": {
