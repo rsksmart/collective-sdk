@@ -22,7 +22,7 @@ A code contribution process starts with someone identifying a need for writing c
 
 Once you know what to do, it is important that you provide a full description of the proposed changes. You can also send a draft pull request if you already have code to show.
 
-We make use of GitHub Checks to ensure all changes meet a certain criteria:
+We make use of GitHub Checks to ensure all changes meet certain criteria:
 
 1. The `main` branch is protected and only changeable through pull requests
 2. All unit tests must pass
